@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculateur de portions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f7f5f0;
+      --surface: #ffffff;
+      --border: #e2ded6;
+      --text: #1a1917;
+      --muted: #8a8680;
+      --accent: #2d6a4f;
+      --accent-light: #e8f4ee;
+      --danger: #c0392b;
+      --radius: 10px;
+      --font: 'DM Sans', sans-serif;
+      --mono: 'DM Mono', monospace;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 560px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    .field-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 1.25rem;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus { border-color: var(--accent); }
+
+    select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .slider-row {
+      background: var(--accent-light);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 1.25rem;
+    }
+
+    .slider-row label {
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .slider-val {
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--accent);
+      min-width: 28px;
+      text-align: right;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .table-wrap {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+
+    thead { background: var(--bg); }
+
+    th {
+      text-align: left;
+      padding: 9px 12px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    td.adjusted { font-weight: 500; color: var(--accent); }
+
+    .empty-row td {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 20px;
+    }
+
+    .btn-del {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .btn-del:hover { color: var(--danger); background: #fdf0ef; }
+
+    .add-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .add-row input[type="text"] { flex: 2; min-width: 120px; }
+    .add-row input[type="number"] { width: 80px; flex: none; }
+    .add-row select { width: 90px; flex: none; }
+
+    .btn-add {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: 9px 16px;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+
+    .btn-add:hover { opacity: 0.85; }
+
+    .copy-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.9;
+      white-space: pre-wrap;
+      margin-bottom: 10px;
+      min-height: 48px;
+    }
+
+    .footer-row { display: flex; gap: 8px; }
+
+    .btn-secondary {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 14px;
+      font-family: var(--font);
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-secondary:hover { background: var(--bg); }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.5rem 0;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <p class="card-title">Calculateur de portions</p>
+
+  <div class="field-group">
+    <div class="field">
+      <label>Nom de la recette</label>
+      <input type="text" id="recipe-name" placeholder="ex. Poivrons farcis…" />
+    </div>
+    <div class="field">
+      <label>Portions de référence</label>
+      <input type="number" id="base-portions" min="1" max="50" value="4" />
+    </div>
+  </div>
+
+  <div class="slider-row">
+    <label>Portions souhaitées</label>
+    <input type="range" min="1" max="20" value="4" step="1" id="target-slider" oninput="updateTarget(this.value)" />
+    <span class="slider-val" id="target-val">4</span>
+  </div>
+
+  <p class="section-label">Ingrédients</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Ingrédient</th>
+          <th>Base</th>
+          <th>Unité</th>
+          <th>Ajusté</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="ing-body">
+        <tr class="empty-row"><td colspan="5">Ajoute des ingrédients ci-dessous</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="add-row">
+    <input type="text" id="new-name" placeholder="Ingrédient" />
+    <input type="number" id="new-qty" min="0" step="any" placeholder="Qté" />
+    <select id="new-unit">
+      <option value="g">g</option>
+      <option value="kg">kg</option>
+      <option value="ml">ml</option>
+      <option value="cl">cl</option>
+      <option value="L">L</option>
+      <option value="CAS">CAS</option>
+      <option value="CAC">CAC</option>
+      <option value="pièce(s)" selected>pièce(s)</option>
+      <option value="pincée">pincée</option>
+    </select>
+    <button class="btn-add" onclick="addIngredient()">+ Ajouter</button>
+  </div>
+
+  <hr class="divider" />
+
+  <p class="section-label">Copier dans Notion</p>
+  <div class="copy-box" id="copy-area">—</div>
+  <div class="footer-row">
+    <button class="btn-secondary" onclick="copyText()">📋 Copier</button>
+    <button class="btn-secondary" onclick="clearAll()">🗑 Tout effacer</button>
+  </div>
+</div>
+
+<script>
+  let ingredients = [];
+
+  function getBase() { return Math.max(1, parseFloat(document.getElementById('base-portions').value) || 1); }
+  function getTarget() { return parseFloat(document.getElementById('target-val').textContent) || 1; }
+
+  function updateTarget(v) {
+    document.getElementById('target-val').textContent = v;
+    renderTable(); renderCopy();
+  }
+
+  document.getElementById('base-portions').addEventListener('input', () => { renderTable(); renderCopy(); });
+
+  function fmt(n) {
+    if (n === Math.round(n)) return String(Math.round(n));
+    return String(parseFloat(n.toFixed(2)));
+  }
+
+  function addIngredient() {
+    const name = document.getElementById('new-name').value.trim();
+    const qty = parseFloat(document.getElementById('new-qty').value);
+    const unit = document.getElementById('new-unit').value;
+    if (!name || isNaN(qty) || qty <= 0) return;
+    ingredients.push({ name, qty, unit });
+    document.getElementById('new-name').value = '';
+    document.getElementById('new-qty').value = '';
+    renderTable(); renderCopy();
+  }
+
+  function removeIngredient(i) {
+    ingredients.splice(i, 1);
+    renderTable(); renderCopy();
+  }
+
+  function renderTable() {
+    const base = getBase(), target = getTarget();
+    const tbody = document.getElementById('ing-body');
+    if (!ingredients.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Ajoute des ingrédients ci-dessous</td></tr>';
+      return;
+    }
+    tbody.innerHTML = ingredients.map((ing, i) => {
+      const adj = (ing.qty / base) * target;
+      return `<tr>
+        <td>${ing.name}</td>
+        <td>${fmt(ing.qty)}</td>
+        <td style="color:#8a8680">${ing.unit}</td>
+        <td class="adjusted">${fmt(adj)} ${ing.unit}</td>
+        <td><button class="btn-del" onclick="removeIngredient(${i})" title="Supprimer">×</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderCopy() {
+    const base = getBase(), target = getTarget();
+    const name = document.getElementById('recipe-name').value || 'Recette';
+    if (!ingredients.length) { document.getElementById('copy-area').textContent = '—'; return; }
+    const lines = [`📋 ${name} — ${target} portion${target > 1 ? 's' : ''}\n`];
+    ingredients.forEach(ing => {
+      const adj = (ing.qty / base) * target;
+      lines.push(`• ${ing.name} : ${fmt(adj)} ${ing.unit}`);
+    });
+    document.getElementById('copy-area').textContent = lines.join('\n');
+  }
+
+  function copyText() {
+    const text = document.getElementById('copy-area').textContent;
+    if (text === '—') return;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.footer-row .btn-secondary');
+      const orig = btn.textContent;
+      btn.textContent = '✓ Copié !';
+      setTimeout(() => btn.textContent = orig, 1800);
+    });
+  }
+
+  function clearAll() {
+    ingredients = [];
+    document.getElementById('recipe-name').value = '';
+    document.getElementById('base-portions').value = 4;
+    document.getElementById('target-slider').value = 4;
+    document.getElementById('target-val').textContent = '4';
+    renderTable(); renderCopy();
+  }
+
+  document.getElementById('new-qty').addEventListener('keydown', e => { if (e.key === 'Enter') addIngredient(); });
+</script>
+</body>
+</html>
