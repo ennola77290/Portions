@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calculateur de portions</title>
+  <title>Ingrédients</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono&display=swap" rel="stylesheet">
   <style>
@@ -260,11 +260,11 @@
 </head>
 <body>
 <div class="card">
-  <p class="card-title">Calculateur de portions</p>
+  <p class="card-title">Ingrédients</p>
 
   <div class="field-group">
     <div class="field">
-      <label>Nom de la recette</label>
+      <label>Recette</label>
       <input type="text" id="recipe-name" placeholder="ex. Poivrons farcis…" />
     </div>
     <div class="field">
@@ -316,13 +316,7 @@
 
   <hr class="divider" />
 
-  <p class="section-label">Copier dans Notion</p>
-  <div class="copy-box" id="copy-area">—</div>
-  <div class="footer-row">
-    <button class="btn-secondary" onclick="copyText()">📋 Copier</button>
-    <button class="btn-secondary" onclick="clearAll()">🗑 Tout effacer</button>
-  </div>
-</div>
+  
 
 <script>
   let ingredients = [];
